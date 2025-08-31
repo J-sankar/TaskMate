@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+  // output   = "./src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  EMPLOYEE
+  MANAGER
+  GUEST
+}
+
+enum userStatus {
+  ACTIVE
+  BLOCKED
+}
+
+enum taskStatus {
+  PENDING
+  IN_REVIEW
+  COMPLETED
+}
+
+enum oauthProvider {
+  GOOGLE
+  GITHUB
+}
+
+model Users {
+  userId            Int            @id @default(autoincrement())
+  firstname         String         @db.VarChar(50)
+  lastname          String?         @db.VarChar(50)
+  email             String         @unique @db.VarChar(50)
+  phoneno           String?
+  password          String?        @db.VarChar(50)
+  role              Role           @default(EMPLOYEE)
+  status            userStatus     @default(ACTIVE)
+  oauthRefreshtoken String?
+  oauthId           String?
+  oauthProvider     oauthProvider?
+  refreshtokens     String[]
+  task              UserTask[]
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+}
+
+model Tasks {
+  taskId      Int        @id @default(autoincrement())
+  title       String     @db.VarChar(50)
+  description String     @db.VarChar(150)
+  status      taskStatus @default(PENDING)
+  user        UserTask[]
+  assignedAt  DateTime   @default(now())
+  dueDate     DateTime
+}
+
+enum UserTasksROle {
+  ASSIGNEE
+  OWNER
+  RIVIEWER
+}
+
+model UserTask {
+  id     Int           @id @default(autoincrement())
+  userId Int
+  taskId Int
+  role   UserTasksROle @default(ASSIGNEE)
+
+  user Users @relation(fields: [userId], references: [userId])
+  task Tasks @relation(fields: [taskId], references: [taskId])
+
+  @@unique([userId, taskId])
+}

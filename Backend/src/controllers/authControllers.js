@@ -2,7 +2,11 @@ import { env } from "../config/env.js"
 import axios from 'axios'
 import { verify_IdToken } from "../utils/verifiytokens.js"
 import { oauthSchema } from "../validation/uservalidation.js"
-import { createOauthUser } from "../services/userServices.js"
+import { createOauthUser, createUser, updateRefreshToken } from "../services/userServices.js"
+import { createAccessToken, createRefreshToken } from "../utils/createTokens.js"
+import { getDeviceId } from "../utils/deviceId.js"
+import setRefreshTokenInCookie from "../utils/cookie.js"
+
 
 
 
@@ -37,27 +41,35 @@ export const googleCallBack = async (req, res, next) => {
 
         },
             {
-                headers: { "Content-type": "application/json" },
+                headers: { "Content-type": "application/x-www-form-urlencoded" },
             }
         )
         const { access_token, id_token, refresh_token } = coderesponse.data
         const userDetails = await verify_IdToken(id_token)
+        console.log(userDetails)
+        
 
-        const newUser = { email: userDetails.email, firstname: userDetails.given_name ,lastname:userDetails.family_name, oauthId: userDetails.sub, oauthProvider: 'GOOGLE' }
+        const newUser = { email: userDetails.email, firstname: userDetails.given_name, lastname: userDetails.family_name, oauthId: userDetails.sub, oauthProvider: 'GOOGLE' }
         const { error } = oauthSchema.validate(newUser)
 
         if (error) {
             const err = new Error(error.details.map(d => d.message).join(','))
-            
-            
+
+
             err.status = 400
             return next(err)
         }
-        const insertedUser = await createOauthUser(newUser,refresh_token)
-        console.log(insertedUser)
-        
-        
-        res.redirect("http://localhost:5173/dashboard")
+        const insertedUser = await createOauthUser(newUser, refresh_token)
+        const deviceId = getDeviceId(req, res)
+      
+        const accessToken = createAccessToken(insertedUser)
+        const refreshToken = createRefreshToken(insertedUser, deviceId)
+        await updateRefreshToken(refreshToken,insertedUser.email)
+        setRefreshTokenInCookie(res, refreshToken)
+
+        return res.status(201).json({message:`New user signed up ,user id : ${insertedUser.userId}` ,accessToken})
+
+       
 
 
     } catch (err) {
@@ -65,8 +77,22 @@ export const googleCallBack = async (req, res, next) => {
     }
 }
 
-export const signup = (req,res,next)=>{
-    console.log(req.body)
-    return res.status(200).json({message:'obtained user data'})
+export const signup = async (req, res, next) => {
+    try{
+
+        const newUser = await createUser(req.body)
+        const deviceId = getDeviceId(req, res)
+        const accessToken = createAccessToken(newUser)
+        const refreshToken = createRefreshToken(newUser, deviceId)
+        await updateRefreshToken(refreshToken,newUser.email)
+        setRefreshTokenInCookie(res, refreshToken)
+        
     
+        return res.status(201).json({ message: 'New user Signed Up', accessToken,email:newUser.email })
+    }catch(error){
+        next(error)
+    }
+
+
+
 } 

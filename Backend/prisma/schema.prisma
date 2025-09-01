@@ -1,11 +1,49 @@
 generator client {
   provider = "prisma-client-js"
-  // output   = "./src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Users {
+  userId            Int            @id @default(autoincrement())
+  firstname         String         @db.VarChar(50)
+  lastname          String?        @db.VarChar(50)
+  email             String         @unique @db.VarChar(50)
+  phoneno           String?
+  password          String?       @db.VarChar(300)
+  role              Role           @default(EMPLOYEE)
+  status            userStatus     @default(ACTIVE)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  refreshtokens     String[]
+  oauthId           String?
+  oauthProvider     oauthProvider?
+  oauthRefreshtoken String?
+  task              UserTask[]
+}
+
+model Tasks {
+  taskId      Int        @id @default(autoincrement())
+  title       String     @db.VarChar(50)
+  description String     @db.VarChar(150)
+  status      taskStatus @default(PENDING)
+  assignedAt  DateTime   @default(now())
+  dueDate     DateTime
+  user        UserTask[]
+}
+
+model UserTask {
+  id     Int           @id @default(autoincrement())
+  userId Int
+  taskId Int
+  role   UserTasksROle @default(ASSIGNEE)
+  task   Tasks         @relation(fields: [taskId], references: [taskId])
+  user   Users         @relation(fields: [userId], references: [userId])
+
+  @@unique([userId, taskId])
 }
 
 enum Role {
@@ -31,48 +69,8 @@ enum oauthProvider {
   GITHUB
 }
 
-model Users {
-  userId            Int            @id @default(autoincrement())
-  firstname         String         @db.VarChar(50)
-  lastname          String?         @db.VarChar(50)
-  email             String         @unique @db.VarChar(50)
-  phoneno           String?
-  password          String?        @db.VarChar(50)
-  role              Role           @default(EMPLOYEE)
-  status            userStatus     @default(ACTIVE)
-  oauthRefreshtoken String?
-  oauthId           String?
-  oauthProvider     oauthProvider?
-  refreshtokens     String[]
-  task              UserTask[]
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
-}
-
-model Tasks {
-  taskId      Int        @id @default(autoincrement())
-  title       String     @db.VarChar(50)
-  description String     @db.VarChar(150)
-  status      taskStatus @default(PENDING)
-  user        UserTask[]
-  assignedAt  DateTime   @default(now())
-  dueDate     DateTime
-}
-
 enum UserTasksROle {
   ASSIGNEE
   OWNER
   RIVIEWER
-}
-
-model UserTask {
-  id     Int           @id @default(autoincrement())
-  userId Int
-  taskId Int
-  role   UserTasksROle @default(ASSIGNEE)
-
-  user Users @relation(fields: [userId], references: [userId])
-  task Tasks @relation(fields: [taskId], references: [taskId])
-
-  @@unique([userId, taskId])
 }

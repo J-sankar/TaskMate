@@ -1,8 +1,10 @@
 import React from 'react'
 import SignUp from '../components/SignUp'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const Register = () => {
+    const navigate = useNavigate() 
     const [method, setMethod] = useState(null)
     
         const OAuthSignUp = ()=>{
@@ -12,6 +14,7 @@ const Register = () => {
     
         const formSignUp = ()=>{
             setMethod("form")
+            navigate('/dashboard')
          
         }
     

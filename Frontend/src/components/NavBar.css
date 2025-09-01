@@ -1,0 +1,12 @@
+.navbar  {
+    color:white;
+    font-size: 17px;
+    font-weight: 700;
+}
+.navbar ul li  a {
+    display: inline-block;
+    transition: all ease-out 300ms;
+}
+.navbar ul li a:hover{
+    transform: scale(1.1);
+}

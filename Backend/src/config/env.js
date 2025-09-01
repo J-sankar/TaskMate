@@ -9,6 +9,7 @@ export  const  env ={
     CLIENT_SECRET:process.env.CLIENT_SECRET,
     GOOGLE_CALLBACK_URI :process.env.GOOGLE_CALLBACK_URI,
 
-    ACCESSS_SECRET : process.env.ACCESSS_SECRET,
+    ACCESS_SECRET : process.env.ACCESS_SECRET,
     REFRESH_SECRET : process.env.REFRESH_SECRET,
+    NODE_ENV: process.env.NODE_ENV
 }

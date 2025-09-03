@@ -1,29 +1,28 @@
 import React from 'react'
 import './NavBar.css'
 import { Link, useNavigate } from 'react-router-dom'
+import Logo from './Logo'
 
 const NavBar = () => {
   const navigate = useNavigate()
  
   return (
-    <div>
-      <nav className="group navbar flex justify-around fixed h-18  top-0 left-0 w-full bg-gradient-to-l from-blue-400 via-indigo-700 to-violet-700 ">
-        <div className="pl-10 logo flex grow-3 justify-center items-center h-16 gap-4">
-          <img src="/logo.png" alt="Logo" className="h-10 w-auto" />
-          <span className="text-3xl font-bold">TaskMate</span>
-        </div>
-        <ul className='flex grow-2 justify-center  items-center gap-10'>
-          <li>
-            <Link to='/services'>Services</Link></li>
+    <nav className='flex justify-around items-center h-[10vh] w-[100vw]  bg-gradient-to-l from-blue-500 via-indigo-600 to-violet-800' >
+      <Logo classname='gap-5x grow-3' size='text-4xl'/>
+      <ul className=' bg-inherit grow-2 gap-2 flex text- justify-around items-center'>
+        <li>
 
-          <li><Link to="/signup">Sign up/Log in</Link></li>
-        </ul>
-        <div className=" btn flex justify-start grow-2 items-center">
+        <Link to= '/signup' className='link'>Sign Up/Login</Link>
+        </li>
+        <li>
+          <Link to="/services" className='link'>Services</Link>
+        </li>
+      </ul>
+      <div  className=' grow-2 p-1'>
 
-          <button className=' border-b-white border-2 bg-transparent rounded-lg hover:scale-110 transition-all ease-in 300ms   text-white pl-5 pr-5 pt-1 pb-1'>Create Task</button>
-        </div>
-      </nav>
-    </div>
+      <button className='border-2 px-5 py-1.5 rounded-[8px] hover:scale-110 transition-all ease-out duration-300' >Tasks</button>
+      </div>
+    </nav>
   )
 }
 

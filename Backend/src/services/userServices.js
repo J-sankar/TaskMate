@@ -66,7 +66,7 @@ export const createUser = async (newUser) => {
     }
 }
 
-export const updateRefreshToken = async (refreshToken, email) => {
+export const updateRefreshToken = async (refreshToken, email,deviceId) => {
     const hashedToken = await hashPassword(refreshToken)
     if (!hashedToken) {
         throw new Error("Failed to hash refresh token");
@@ -83,9 +83,12 @@ export const updateRefreshToken = async (refreshToken, email) => {
             error.status = 404
             throw error
         }
-        const tokens = user.refreshtokens || []
+
+        const tokens = (user.refreshtokens|| []).filter(t=>t.deviceId !== deviceId) 
         if (tokens.length >= 3) tokens.shift()
-        tokens.push(hashedToken)
+
+        tokens.push({token:hashedToken,deviceId})
+        
         await prisma.users.update({
             where: { email },
             data: {
@@ -98,5 +101,16 @@ export const updateRefreshToken = async (refreshToken, email) => {
 
     }
 
+}
+
+export const findUser = async (email) =>{
+    try {
+        const user = await prisma.users.findUnique({
+            where:{email}
+        })
+        return user
+    } catch (error) {
+        throw error
+    }
 }
 

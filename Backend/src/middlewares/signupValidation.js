@@ -1,4 +1,4 @@
-import { signupSchema } from "../validation/uservalidation.js";
+import { signupSchema } from "../validation/userValidation.js"
 
 const responseValidator = (req,res, next)=>{
     const {error} = signupSchema.validate(req.body,{ abortEarly: false })

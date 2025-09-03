@@ -1,12 +1,12 @@
 import React from 'react'
 import { useState } from 'react'
 import axios from 'axios'
-import './SignUp.css'
+import styles from './SignUp.module.css'
 
 
 
 const SignUp = () => {
-    const navigate = useNavigate()
+    
     
     const [errors, setErrors] = useState({})
     const [formData, setFormData] = useState({
@@ -107,8 +107,8 @@ const SignUp = () => {
         
            
 
-            <form onSubmit={handleSubmit} className='pb-[20px] min-h-[0vh] w-[90%] flex flex-col items-center justify-center gap-1.5 '>
-                <div className="field1 field">
+            <form onSubmit={handleSubmit} className='pb-[20px] w-[90%] flex flex-col items-center justify-center gap-1.5 '>
+                <div className={styles.field}>
 
 
                     <input type="text" placeholder="" name="name" id="name" value={formData.name} onChange={handleChange} />
@@ -118,7 +118,7 @@ const SignUp = () => {
                     {errors.name && <p style={{ color: "red" }}>{errors.name}</p>}
                     </div>
                 </div>
-                <div className="field2 field">
+                <div className={styles.field}>
                     
                         <input type="email" placeholder="" name="email" id="email" value={formData.email} onChange={handleChange} />
                         <label htmlFor="email">Email</label>
@@ -128,7 +128,7 @@ const SignUp = () => {
                             
                     
                 </div>
-                <div className="field3 field">
+                <div className={styles.field}>
 
 
                     <input type="text" placeholder="" name="phoneno" id="phoneno" value={formData.phoneno} onChange={handleChange} />
@@ -136,7 +136,7 @@ const SignUp = () => {
                     {errors.phoneno && <p style={{ color: "red" }}>{errors.phoneno}</p>}
 
                 </div>
-                <div className="field3 field">
+                <div className={styles.field}>
 
 
                     <input type="password" placeholder="" name="password" id="password" value={formData.password} onChange={handleChange} />
@@ -144,8 +144,8 @@ const SignUp = () => {
                     {errors.password && <p style={{ color: "red" }}>{errors.password}</p>}
                 </div>
 
-                <div className='field flex justify-center' >
-                    <button type="submit" className='border-2 bg-violet-600 text-white rounded-2xl p w-[90%] h-[50%] text-[20px]'>Sign Up</button>
+                <div className={`field flex justify-center ${styles.field}`}>
+                    <button type="submit" className='border-2 hover:bg-violet-900 hover:scale-104 transition-all ease-in duration-100 bg-violet-600 text-white rounded-2xl p w-[90%] h-[50%] text-[20px]'>Sign Up</button>
                 </div>
             </form>
        

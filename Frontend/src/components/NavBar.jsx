@@ -1,5 +1,5 @@
 import React from 'react'
-import './NavBar.css'
+import styles from './NavBar.module.css'
 import { Link, useNavigate } from 'react-router-dom'
 import Logo from './Logo'
 
@@ -12,10 +12,10 @@ const NavBar = () => {
       <ul className=' bg-inherit grow-2 gap-2 flex text- justify-around items-center'>
         <li>
 
-        <Link to= '/signup' className='link'>Sign Up/Login</Link>
+        <Link to= '/signup' className={styles.link}>Sign Up/Login</Link>
         </li>
         <li>
-          <Link to="/services" className='link'>Services</Link>
+          <Link to="/services" className={styles.link}>Services</Link>
         </li>
       </ul>
       <div  className=' grow-2 p-1'>

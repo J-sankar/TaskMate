@@ -18,7 +18,7 @@ model Users {
   status            userStatus     @default(ACTIVE)
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
-  refreshtokens     String[]
+  refreshtokens     Json?
   oauthId           String?
   oauthProvider     oauthProvider?
   oauthRefreshtoken String?

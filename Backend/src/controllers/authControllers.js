@@ -1,11 +1,13 @@
 import { env } from "../config/env.js"
 import axios from 'axios'
 import { verify_IdToken } from "../utils/verifiytokens.js"
-import { oauthSchema } from "../validation/uservalidation.js"
-import { createOauthUser, createUser, updateRefreshToken } from "../services/userServices.js"
+import { oauthSchema } from "../validation/userValidation.js"
+import { createOauthUser, createUser, updateRefreshToken,findUser} from "../services/userServices.js"
 import { createAccessToken, createRefreshToken } from "../utils/createTokens.js"
 import { getDeviceId } from "../utils/deviceId.js"
 import setRefreshTokenInCookie from "../utils/cookie.js"
+import { verifyPassword } from "../services/passwordServices.js"
+import { verifyRefreshToken } from "../utils/verifiytokens.js"
 
 
 
@@ -64,7 +66,7 @@ export const googleCallBack = async (req, res, next) => {
       
         const accessToken = createAccessToken(insertedUser)
         const refreshToken = createRefreshToken(insertedUser, deviceId)
-        await updateRefreshToken(refreshToken,insertedUser.email)
+        await updateRefreshToken(refreshToken,insertedUser.email,deviceId)
         setRefreshTokenInCookie(res, refreshToken)
 
         return res.status(201).json({message:`New user signed up ,user id : ${insertedUser.userId}` ,accessToken})
@@ -84,7 +86,7 @@ export const signup = async (req, res, next) => {
         const deviceId = getDeviceId(req, res)
         const accessToken = createAccessToken(newUser)
         const refreshToken = createRefreshToken(newUser, deviceId)
-        await updateRefreshToken(refreshToken,newUser.email)
+        await updateRefreshToken(refreshToken,newUser.email,deviceId)
         setRefreshTokenInCookie(res, refreshToken)
         
     
@@ -96,3 +98,45 @@ export const signup = async (req, res, next) => {
 
 
 } 
+
+export const login = async(req,res,next)=>{
+    const {email, password} = req.body 
+    try {
+        
+        const user = await findUser(email)
+        if (!user) {
+            const err = new Error("Email does not exist")
+            err.status = 404
+            return next(err)
+        }
+        const isMatch = verifyPassword(user.password,password)
+        if (!isMatch) {
+            const err = new Error ("Incorrect password")
+            err.status = 401
+            return next(err)
+        }
+         const deviceId = getDeviceId(req, res)
+        const accessToken = createAccessToken(user)
+        let refreshToken = req.cookies.refreshToken
+        if (refreshToken) {
+            const payload = verifyRefreshToken(refreshToken)
+
+            if (!payload) 
+
+                refreshToken = null
+    
+        }
+        if (!refreshToken){
+
+            refreshToken = createRefreshToken(user, deviceId)
+            await updateRefreshToken(refreshToken,user.email,deviceId)
+            setRefreshTokenInCookie(res, refreshToken)
+        }
+        console.log(`Login Successfull\n accesstoken: ${accessToken}\nRefreshtoken:${refreshToken}\ndeviceId:${deviceId}`)
+        
+        return res.status(200).json({message:'Login Successfull', accessToken})
+    } catch (error) {
+        next(error)
+    }
+
+}

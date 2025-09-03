@@ -1,0 +1,53 @@
+.field {
+    position: relative;
+    width: 70%;
+     
+    /* height: 100%; */
+    padding: 0 1px;
+    height: 110px;
+     
+     
+
+}
+label {
+    position: absolute;
+    left: 4%;
+    top: 8%;
+    font-size: 20px;
+    color: gray;
+    font-size: 17px;
+    
+    
+    
+}
+
+input {
+    
+    border: 2px solid rgb(161, 161, 161);
+   padding: 10px 15px;
+   margin: 0;
+   width: 100%;
+   border-radius: 8px;
+   
+  
+    
+
+
+}
+
+input:hover + label, input:not(:placeholder-shown) + label, input:focus + label {
+    font-size: small;
+    top:2px;
+    left: 16px;
+    padding-bottom: 10px;
+    transition: all ease-out 200ms;
+    margin-bottom: 5px;
+}
+
+
+
+input:hover {
+
+  transition: all ease-out 300ms;
+  color: black;
+ }

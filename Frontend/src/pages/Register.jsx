@@ -1,42 +1,53 @@
 import React from 'react'
 import SignUp from '../components/SignUp'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
+
+import Logo from '../components/Logo'
+import './Register.css'
 
 const Register = () => {
-    const navigate = useNavigate() 
+    const navigate = useNavigate()
     const [method, setMethod] = useState(null)
-    
-        const OAuthSignUp = ()=>{
-            setMethod("google")
-            window.location.href = 'http://localhost:3000/auth/google/oauth/newuser'
-        }
-    
-        const formSignUp = ()=>{
-            setMethod("form")
-            navigate('/dashboard')
-         
-        }
-    
-        
+    const [height, setHeight] = useState('60vh')
 
-  return (
-    <div>
-        {     !method && (
-            
-            <div className="choiceBox">
-            <h1>Sign Up</h1>
-        
-            <button className="google" onClick={OAuthSignUp}>Sign up using Google</button>
-            <button className="signup" onClick={formSignUp}>Register New User</button>
-       </div>
-            )
+    const OAuthSignUp = () => {
+        setMethod("google")
+        window.location.href = 'http://localhost:3000/auth/google/oauth/newuser'
 
     }
-            {method === "form" && <SignUp/> }
 
-    </div>
-  )
+    const formSignUp = () => {
+        setMethod("form")
+        setHeight('95vh')
+
+    }
+
+
+
+    return (
+        <div className=" min-h-[100vh] w-[100vw] flex justify-center bg-gray-100   ">
+            <div  className='bg-white my-[10%]  shadow-4xl w-[40vw] rounded-2xl transition-all duration-500 ease-in-out flex flex-col items-center gap-[20px]' style={{height}}>
+            <Logo classname='text-[50px] text-violet-900 gap-[4px] pb-[40px] pt-[20px]' />
+                {(!method) &&
+
+                    <div className='opacity-100 choosemethod w-[100%] h-[80%] text-white flex  flex-col gap-2.5 items-center  font-[600]  rounded-[10px] '>
+                        <button onClick={formSignUp} className='btn bg-violet-600 hover:bg-violet-800 '>Sign up Here</button>
+                        <button onClick={OAuthSignUp} className='btn text-gray-700 bg-white border-2 border-gray-600 hover:border-gray-800 hover:text-gray-800'>Sign up using Google</button>
+                        <div className=' text-gray-600 text-[15px] px-[12px] flex justify-center gap-[5px] '>Already a User ?
+                            <Link to="/login" className='underline hover:text-violet-900 hover:underline'>  Login Here</Link>
+                        </div>
+
+                    </div>
+                }
+                {
+                    (method === 'form') &&
+                 <SignUp/>
+                }
+                
+            </div>
+        </div>
+    )
 }
 
 export default Register

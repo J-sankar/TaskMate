@@ -109,7 +109,7 @@ export const login = async(req,res,next)=>{
             err.status = 404
             return next(err)
         }
-        const isMatch = verifyPassword(user.password,password)
+        const isMatch = await verifyPassword(user.password,password)
         if (!isMatch) {
             const err = new Error ("Incorrect password")
             err.status = 401

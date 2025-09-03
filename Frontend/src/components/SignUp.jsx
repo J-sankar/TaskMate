@@ -1,8 +1,12 @@
 import React from 'react'
 import { useState } from 'react'
 import axios from 'axios'
+import './SignUp.css'
+
+
 
 const SignUp = () => {
+    const navigate = useNavigate()
     
     const [errors, setErrors] = useState({})
     const [formData, setFormData] = useState({
@@ -12,6 +16,7 @@ const SignUp = () => {
         phoneno: ''
 
     })
+    
 
     const handleChange = (e) => {
         const { name, value } = e.target
@@ -83,10 +88,13 @@ const SignUp = () => {
         user.password = formData.password
 
         try {
+            
             const response = await axios.post('http://localhost:3000/auth/signup', user)
             console.log("OK:",response.data)
+            
         } catch (error) {
-            console.log(error.message)
+            console.log(error.response.data)
+            
         }
 
 
@@ -96,46 +104,51 @@ const SignUp = () => {
 
 
     return (
-        <>
-            <h1>Sign Up</h1>
+        
+           
 
-            <form onSubmit={handleSubmit}>
-                <div className="field1">
+            <form onSubmit={handleSubmit} className='pb-[20px] min-h-[0vh] w-[90%] flex flex-col items-center justify-center gap-1.5 '>
+                <div className="field1 field">
 
 
+                    <input type="text" placeholder="" name="name" id="name" value={formData.name} onChange={handleChange} />
                     <label htmlFor="name">Name</label>
-                    <input type="text" name="name" id="name" value={formData.name} onChange={handleChange} />
 
+                   <div>
                     {errors.name && <p style={{ color: "red" }}>{errors.name}</p>}
-                </div>
-                <div className="field2">
-                    <div>
-                        <label htmlFor="email">Email</label>
-                        <input type="email" name="email" id="email" value={formData.email} onChange={handleChange} />
-                        {errors.email && <p style={{ color: "red" }}>{errors.email}</p>}
                     </div>
                 </div>
-                <div className="field3">
+                <div className="field2 field">
+                    
+                        <input type="email" placeholder="" name="email" id="email" value={formData.email} onChange={handleChange} />
+                        <label htmlFor="email">Email</label>
+                        <div>
+                        {errors.email && <p style={{ color: "red" }}>{errors.email}</p>}
+                        </div>
+                            
+                    
+                </div>
+                <div className="field3 field">
 
 
+                    <input type="text" placeholder="" name="phoneno" id="phoneno" value={formData.phoneno} onChange={handleChange} />
                     <label htmlFor="phoneno">Phone Number</label>
-                    <input type="text" name="phoneno" id="phoneno" value={formData.phoneno} onChange={handleChange} />
                     {errors.phoneno && <p style={{ color: "red" }}>{errors.phoneno}</p>}
 
                 </div>
-                <div className="field3">
+                <div className="field3 field">
 
 
+                    <input type="password" placeholder="" name="password" id="password" value={formData.password} onChange={handleChange} />
                     <label htmlFor="password">Password</label>
-                    <input type="password" name="password" id="password" value={formData.password} onChange={handleChange} />
                     {errors.password && <p style={{ color: "red" }}>{errors.password}</p>}
                 </div>
 
-                <div className="btn">
-                    <button type="submit">Sign Up</button>
+                <div className='field flex justify-center' >
+                    <button type="submit" className='border-2 bg-violet-600 text-white rounded-2xl p w-[90%] h-[50%] text-[20px]'>Sign Up</button>
                 </div>
             </form>
-        </>
+       
     )
 }
 

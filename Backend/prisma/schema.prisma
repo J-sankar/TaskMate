@@ -22,7 +22,10 @@ model Users {
   oauthId           String?
   oauthProvider     oauthProvider?
   oauthRefreshtoken String?
-  task              UserTask[]
+  task              UserTask[] 
+  teamId            Int  ? 
+  team             Teams ?   @relation(fields: [teamId], references: [teamId], name: "TeamMembers")
+  managerof       Teams?    @relation("TeamManager")
 }
 
 model Tasks {
@@ -44,6 +47,17 @@ model UserTask {
   user   Users         @relation(fields: [userId], references: [userId])
 
   @@unique([userId, taskId])
+}
+
+
+model Teams {
+  teamId Int  @id @default(autoincrement()) 
+  name  String   @db.VarChar(20)
+  members  Users[] @relation("TeamMembers")
+  managerId Int @unique
+  manager Users  @relation(references: [userId],fields: [managerId],name: "TeamManager")
+  
+   
 }
 
 enum Role {

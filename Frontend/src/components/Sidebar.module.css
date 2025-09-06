@@ -1,0 +1,18 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Baloo+Bhai+2:wght@400..800&family=Bebas+Neue&family=Boldonse&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans:wdth@62.5..100&display=swap');
+menu,.link {
+    color:grey;
+}
+
+.link:hover{
+    color: black;
+    font-weight: 600;
+    transform: scale(1.1);
+    transition: all ease-out 200ms;
+}
+
+p {
+    font-family: 'Boldonse Static';
+    font-weight: 700;
+    color: rgb(159, 159, 159);
+}

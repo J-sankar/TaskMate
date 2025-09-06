@@ -1,6 +1,6 @@
 import { env } from "../config/env.js";
 
-const setRefreshTokenInCookie = (res, refreshToken) => {
+export const setRefreshTokenInCookie = (res, refreshToken) => {
     res.cookie('refreshToken', refreshToken,
         {
             httpOnly: true,
@@ -10,4 +10,15 @@ const setRefreshTokenInCookie = (res, refreshToken) => {
         }
     )
 }
-export default setRefreshTokenInCookie
+export const setAccessTokenInCookie = (res,accessToken)=>{
+    res.cookie('accessToken', accessToken,
+        {
+            httpOnly:true,
+            secure:env.NODE_ENV === 'production',
+            sameSite: 'strict',
+             maxAge:  15 * 60 * 1000
+        }
+    )
+}
+
+

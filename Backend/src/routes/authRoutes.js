@@ -1,14 +1,14 @@
 import { Router } from "express";
 import { authGoogle , googleCallBack, login, signup} from "../controllers/authControllers.js";
-import responseValidator from "../middlewares/signupValidation.js";
+import {loginRequestBodyValidator, signUpRequestBodyValidator} from "../middlewares/validation.js";
 
 const authRouter = new Router()
 
-authRouter.post('/signup',responseValidator,signup)
+authRouter.post('/signup',signUpRequestBodyValidator,signup)
 
 authRouter.get('/google/oauth/newuser', authGoogle)
 authRouter.get('/google/callback', googleCallBack)
-authRouter.post('/login', login )
+authRouter.post('/login',loginRequestBodyValidator, login)
 
 
 

@@ -1,18 +1,19 @@
 import { env } from "../config/env.js"
 import axios from 'axios'
-import { verify_IdToken } from "../utils/verifiytokens.js"
-import { oauthSchema } from "../validation/userValidation.js"
-import { createOauthUser, createUser, updateRefreshToken,findUser} from "../services/userServices.js"
+import { verify_IdToken } from "../utils/verifiyTokens.js"
+import { oauthSchema } from "../validation/auth.validation.js"
+import { createOauthUser, createUser, insertRefreshToken, findUserbyEmail, findUserbyId} from "../services/userServices.js"
 import { createAccessToken, createRefreshToken } from "../utils/createTokens.js"
-import { getDeviceId } from "../utils/deviceId.js"
-import setRefreshTokenInCookie from "../utils/cookie.js"
+import {setAccessTokenInCookie, setRefreshTokenInCookie} from "../utils/cookie.js"
 import { verifyPassword } from "../services/passwordServices.js"
-import { verifyRefreshToken } from "../utils/verifiytokens.js"
+import { verifyRefreshToken } from "../utils/verifiyTokens.js"
+
 
 
 
 
 export const authGoogle = async (req, res) => {
+    const deviceId = req.query.state
     const redirectUri = "https://accounts.google.com/o/oauth2/v2/auth"
     const params = new URLSearchParams({
         client_id: env.CLIENT_ID,
@@ -21,12 +22,13 @@ export const authGoogle = async (req, res) => {
         access_type: "offline",
         scope: 'openid email profile',
         prompt: 'consent',
+        state:deviceId
     })
     res.redirect(`${redirectUri}?${params.toString()}`)
 }
 
 export const googleCallBack = async (req, res, next) => {
-    const code = req.query.code
+    const {code, state:deviceId} = req.query
     if (!code) {
         const error = new Error("No code provided by google")
         error.status = 400
@@ -62,16 +64,15 @@ export const googleCallBack = async (req, res, next) => {
             return next(err)
         }
         const insertedUser = await createOauthUser(newUser, refresh_token)
-        const deviceId = getDeviceId(req, res)
+        
       
         const accessToken = createAccessToken(insertedUser)
-        const refreshToken = createRefreshToken(insertedUser, deviceId)
-        await updateRefreshToken(refreshToken,insertedUser.email,deviceId)
+        const {refreshToken,tokenCreatedAt} = createRefreshToken(insertedUser, deviceId)
+        await insertRefreshToken(refreshToken,insertedUser.userId,deviceId,tokenCreatedAt)
         setRefreshTokenInCookie(res, refreshToken)
+        setAccessTokenInCookie(res, accessToken)
 
-        return res.status(201).json({message:`New user signed up ,user id : ${insertedUser.userId}` ,accessToken})
-
-       
+        res.redirect(`http://localhost:5173/dashboard`)
 
 
     } catch (err) {
@@ -83,27 +84,19 @@ export const signup = async (req, res, next) => {
     try{
 
         const newUser = await createUser(req.body)
-        const deviceId = getDeviceId(req, res)
-        const accessToken = createAccessToken(newUser)
-        const refreshToken = createRefreshToken(newUser, deviceId)
-        await updateRefreshToken(refreshToken,newUser.email,deviceId)
-        setRefreshTokenInCookie(res, refreshToken)
-        
-    
-        return res.status(201).json({ message: 'New user Signed Up', accessToken,email:newUser.email })
+        return res.status(201).json({ success:true ,message: 'New user Signed Up',email:newUser.email })
     }catch(error){
         next(error)
     }
 
-
-
 } 
 
 export const login = async(req,res,next)=>{
-    const {email, password} = req.body 
+    res.clearCookie('refreshToken')
+    const {email, password,deviceId} = req.body 
     try {
         
-        const user = await findUser(email)
+        const user = await findUserbyEmail(email)
         if (!user) {
             const err = new Error("Email does not exist")
             err.status = 404
@@ -115,28 +108,63 @@ export const login = async(req,res,next)=>{
             err.status = 401
             return next(err)
         }
-         const deviceId = getDeviceId(req, res)
+        // const deviceId = getDeviceId()
         const accessToken = createAccessToken(user)
-        let refreshToken = req.cookies.refreshToken
-        if (refreshToken) {
-            const payload = verifyRefreshToken(refreshToken)
-
-            if (!payload) 
-
-                refreshToken = null
-    
-        }
-        if (!refreshToken){
-
-            refreshToken = createRefreshToken(user, deviceId)
-            await updateRefreshToken(refreshToken,user.email,deviceId)
-            setRefreshTokenInCookie(res, refreshToken)
-        }
+       
+         const {refreshToken,tokenCreatedAt} = createRefreshToken(user, deviceId)
+        await insertRefreshToken(refreshToken,user.userId,deviceId,tokenCreatedAt)
+        setRefreshTokenInCookie(res, refreshToken)
+        setAccessTokenInCookie(res,accessToken)
+        
         console.log(`Login Successfull\n accesstoken: ${accessToken}\nRefreshtoken:${refreshToken}\ndeviceId:${deviceId}`)
         
-        return res.status(200).json({message:'Login Successfull', accessToken})
+        return res.status(200).json({success:true,message:'Login Successfull', accessToken})
     } catch (error) {
         next(error)
     }
+
+}
+
+export const refresh = async (req,res,next)=>{
+    const refreshToken = req.cookies.refreshToken 
+    if (!refreshToken) return next({ message: "Refresh token not found", status: 400 });
+    try {
+        const payload = verifyRefreshToken(refreshToken)
+        if (!payload){
+            
+            const err = new Error("Invalid or expired refresh token")
+            err.status = 401
+            return next(err)
+        }
+        const user = await findUserbyId(payload.id)
+        if (!user) {
+           const err = new Error("User not found")
+            err.status = 404
+            return next(err)
+        }
+        const newAccessToken = createAccessToken(user)
+        return res.status(200).json({accessToken:newAccessToken})
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+export const logout = async (req,res,next)=>{
+    const refreshToken = req.cookies.refreshToken
+    if (!refreshToken){
+        const err = new Error("Refresh token not found")
+        err.status = 401
+        return next(err)
+    }
+    const payload = verifyRefreshToken(refreshToken)
+    if (!payload){
+            
+            const err = new Error("Invalid or expired refresh token")
+            err.status = 401
+            return next(err)
+        }
+    const deviceId =  getDeviceId()
+    res.clearCookie(refreshToken)
 
 }

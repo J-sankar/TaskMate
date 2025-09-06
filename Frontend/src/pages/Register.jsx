@@ -5,15 +5,18 @@ import { useNavigate, Link } from 'react-router-dom'
 
 import Logo from '../components/Logo'
 import styles from './Register.module.css'
+import { setDeviceId } from '../utils/device'
 
 const Register = () => {
+    
     
     const [method, setMethod] = useState(null)
     const [height, setHeight] = useState('60vh')
 
     const OAuthSignUp = () => {
+        const deviceId = setDeviceId()
         setMethod("google")
-        window.location.href = 'http://localhost:3000/auth/google/oauth/newuser'
+        window.location.href = `http://localhost:3000/auth/google/oauth/newuser?state=${encodeURIComponent(deviceId)}`
 
     }
 
@@ -22,7 +25,7 @@ const Register = () => {
         setHeight('95vh')
 
     }
-
+    
 
 
     return (

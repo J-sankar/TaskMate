@@ -23,7 +23,7 @@ const Sidebar = () => {
       </div>
       <div className="menu flex flex-col  gap-2 w-[80%]  align-baseline" style={styles.menu}>
         <p style={styles.p}>GENERAL</p>
-       <Link className={styles.link} to='/setings'><SettingsOutlined fontSize='small'/> Setting</Link>
+       <Link className={styles.link} to='/settings'><SettingsOutlined fontSize='small'/> Setting</Link>
        <Link className={styles.link} to='/help'><SupportOutlined fontSize='small'/> Help</Link>
        <Link  className={styles.link} to='/logout'><LogoutOutlined fontSize='small'/>  Logout</Link>
 

@@ -2,12 +2,15 @@ import React from 'react'
 import { useState } from 'react'
 import axios from 'axios'
 import styles from './SignUp.module.css'
+import { login } from '../services/authServices'
+import { useNavigate } from 'react-router-dom'
+
 
 
 
 const SignUp = () => {
     
-    
+    const navigate = useNavigate()
     const [errors, setErrors] = useState({})
     const [formData, setFormData] = useState({
         name: '',
@@ -91,13 +94,24 @@ const SignUp = () => {
             
             const response = await axios.post('http://localhost:3000/auth/signup', user)
             console.log("OK:",response.data)
+            if (response.data.success){
+                try {
+                    const loginResponse =  await login({email:user.email,password:user.password})
+                 if(loginResponse.status === 200) {
+                    console.log(loginResponse.data)
+                    navigate('/dashboard')
+                 }
+                } catch (error) {
+                    if (error.status === 404) console.log("User not found")
+                    if (error.status === 401) console.log("invalid password")
+                    else console.log(error.response?.data)
+                }               
+            }
             
         } catch (error) {
-            console.log(error.response.data)
+            console.log(error.message)
             
         }
-
-
     }
 
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import Logo from '../components/Logo'
 import styles from './Login.module.css'
 import axios from 'axios'
+import { login } from '../services/authServices'
 
 import { useNavigate } from 'react-router-dom'
 
@@ -43,18 +44,14 @@ const Login = () => {
       return
     }
     try {
-      const response = await axios.post("http://localhost:3000/auth/login", formData, {
-          withCredentials: true
-        }
-        
-      )
+      const response = await login(formData)
       if(response.status === 200) {
         navigate('/dashboard')
       }
       
     } catch (error) {
 
-          const err = error.response?.data
+          const err = await error.response?.data
      
           if (err.status === 404) {
             setErrors({email:err.error})

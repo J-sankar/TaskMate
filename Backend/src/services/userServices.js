@@ -1,4 +1,5 @@
 import prisma from "../config/db.js";
+
 import { hashPassword, verifyPassword } from "./passwordServices.js";
 
 
@@ -66,47 +67,79 @@ export const createUser = async (newUser) => {
     }
 }
 
-export const updateRefreshToken = async (refreshToken, email,deviceId) => {
+export const insertRefreshToken = async (refreshToken, userId,deviceId,createdAt) => {
     const hashedToken = await hashPassword(refreshToken)
+    const tokenLifetimeMs = 14 * 24 * 60 * 60 * 1000;
     if (!hashedToken) {
         throw new Error("Failed to hash refresh token");
-
-
     }
     try {
         const user = await prisma.users.findFirst({
-            where: { email },
-            select: { refreshtokens: true }
+            where: {userId},
+            
         })
         if (!user) {
             const error = new Error("user not found")
             error.status = 404
             throw error
         }
-
-        const tokens = (user.refreshtokens|| []).filter(t=>t.deviceId !== deviceId) 
-        if (tokens.length >= 3) tokens.shift()
-
-        tokens.push({token:hashedToken,deviceId})
+        const tokenCount = await prisma.refreshTokens.count({
+            where:{ownerId:userId}
+        })
+        console.log(tokenCount)
         
-        await prisma.users.update({
-            where: { email },
-            data: {
-                refreshtokens: tokens
+        if (tokenCount >= 3) {
+            const oldestToken = await prisma.refreshTokens.findFirst({
+                where:{ownerId:userId},
+                orderBy:{createdAt:'asc'}
+            })
+            await prisma.refreshTokens.delete({
+                where:{tokenId:oldestToken.tokenId}
+            })
+            
+        }
+        const existingTokens = await prisma.refreshTokens.findMany({
+            where:{ownerId:userId, deviceId}
+        })
+        if (existingTokens.length>0)
+            await prisma.refreshTokens.deleteMany({
+                where:{ownerId:userId,deviceId}
+            })
+        
+        await prisma.refreshTokens.create({
+            data:{
+                hashToken:hashedToken,
+                deviceId,
+                createdAt,
+                expiresAt:new Date(createdAt.getTime() + tokenLifetimeMs),
+                owner:{connect:{userId}}
             }
         })
         
+        
     } catch (error) {
         throw error
-
     }
 
 }
 
-export const findUser = async (email) =>{
+export const findUserbyEmail = async (email) =>{
     try {
         const user = await prisma.users.findUnique({
             where:{email}
+        })
+        return user
+    } catch (error) {
+        throw error
+    }
+}
+
+export const findUserbyId  = async (userId) =>{
+    try {
+        const user = await prisma.users.findUnique({
+            where:{
+                userId
+            }
         })
         return user
     } catch (error) {

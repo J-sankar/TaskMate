@@ -8,24 +8,24 @@ datasource db {
 }
 
 model Users {
-  userId            Int            @id @default(autoincrement())
-  firstname         String         @db.VarChar(50)
-  lastname          String?        @db.VarChar(50)
-  email             String         @unique @db.VarChar(50)
+  userId            Int             @id @default(autoincrement())
+  firstname         String          @db.VarChar(50)
+  lastname          String?         @db.VarChar(50)
+  email             String          @unique @db.VarChar(50)
   phoneno           String?
-  password          String?       @db.VarChar(300)
-  role              Role           @default(EMPLOYEE)
-  status            userStatus     @default(ACTIVE)
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
-  refreshtokens     Json?
+  password          String?         @db.VarChar(300)
+  role              Role            @default(EMPLOYEE)
+  status            userStatus      @default(ACTIVE)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  refreshtokens     RefreshTokens[] @relation("UserRefreshTokens")
   oauthId           String?
   oauthProvider     oauthProvider?
   oauthRefreshtoken String?
-  task              UserTask[] 
-  teamId            Int  ? 
-  team             Teams ?   @relation(fields: [teamId], references: [teamId], name: "TeamMembers")
-  managerof       Teams?    @relation("TeamManager")
+  task              UserTask[]
+  teamId            Int?
+  team              Teams?          @relation(fields: [teamId], references: [teamId], name: "TeamMembers")
+  managerof         Teams?          @relation("TeamManager")
 }
 
 model Tasks {
@@ -42,22 +42,30 @@ model UserTask {
   id     Int           @id @default(autoincrement())
   userId Int
   taskId Int
-  role   UserTasksROle @default(ASSIGNEE)
+  role   UserTasksRole @default(ASSIGNEE)
   task   Tasks         @relation(fields: [taskId], references: [taskId])
   user   Users         @relation(fields: [userId], references: [userId])
 
   @@unique([userId, taskId])
 }
 
-
 model Teams {
-  teamId Int  @id @default(autoincrement()) 
-  name  String   @db.VarChar(20)
-  members  Users[] @relation("TeamMembers")
-  managerId Int @unique
-  manager Users  @relation(references: [userId],fields: [managerId],name: "TeamManager")
-  
-   
+  teamId    Int     @id @default(autoincrement())
+  name      String  @db.VarChar(20)
+  members   Users[] @relation("TeamMembers")
+  managerId Int     @unique
+  manager   Users   @relation(references: [userId], fields: [managerId], name: "TeamManager")
+}
+
+model RefreshTokens {
+  tokenId  Int    @id @default(autoincrement())
+  hashToken String @unique
+  deviceId  String
+  ownerId  Int
+  createdAt DateTime 
+  expiresAt DateTime 
+  owner    Users  @relation(references: [userId], fields: [ownerId],name:"UserRefreshTokens")
+  @@unique([hashToken,deviceId])
 }
 
 enum Role {
@@ -83,7 +91,7 @@ enum oauthProvider {
   GITHUB
 }
 
-enum UserTasksROle {
+enum UserTasksRole {
   ASSIGNEE
   OWNER
   RIVIEWER

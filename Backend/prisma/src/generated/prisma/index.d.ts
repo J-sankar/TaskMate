@@ -5077,7 +5077,7 @@ export namespace Prisma {
     oauthRefreshtoken?: NullableStringFieldUpdateOperationsInput | string | null
     oauthId?: NullableStringFieldUpdateOperationsInput | string | null
     oauthProvider?: NullableEnumoauthProviderFieldUpdateOperationsInput | $Enums.oauthProvider | null
-    refreshtokens?: UsersUpdaterefreshtokensInput | string[]
+    refreshtokens?: UsersinsertRefreshTokensInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     task?: UserTaskUpdateManyWithoutUserNestedInput
@@ -5095,7 +5095,7 @@ export namespace Prisma {
     oauthRefreshtoken?: NullableStringFieldUpdateOperationsInput | string | null
     oauthId?: NullableStringFieldUpdateOperationsInput | string | null
     oauthProvider?: NullableEnumoauthProviderFieldUpdateOperationsInput | $Enums.oauthProvider | null
-    refreshtokens?: UsersUpdaterefreshtokensInput | string[]
+    refreshtokens?: UsersinsertRefreshTokensInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     task?: UserTaskUncheckedUpdateManyWithoutUserNestedInput
@@ -5129,7 +5129,7 @@ export namespace Prisma {
     oauthRefreshtoken?: NullableStringFieldUpdateOperationsInput | string | null
     oauthId?: NullableStringFieldUpdateOperationsInput | string | null
     oauthProvider?: NullableEnumoauthProviderFieldUpdateOperationsInput | $Enums.oauthProvider | null
-    refreshtokens?: UsersUpdaterefreshtokensInput | string[]
+    refreshtokens?: UsersinsertRefreshTokensInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -5146,7 +5146,7 @@ export namespace Prisma {
     oauthRefreshtoken?: NullableStringFieldUpdateOperationsInput | string | null
     oauthId?: NullableStringFieldUpdateOperationsInput | string | null
     oauthProvider?: NullableEnumoauthProviderFieldUpdateOperationsInput | $Enums.oauthProvider | null
-    refreshtokens?: UsersUpdaterefreshtokensInput | string[]
+    refreshtokens?: UsersinsertRefreshTokensInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -5663,7 +5663,7 @@ export namespace Prisma {
     set?: $Enums.oauthProvider | null
   }
 
-  export type UsersUpdaterefreshtokensInput = {
+  export type UsersinsertRefreshTokensInput = {
     set?: string[]
     push?: string | string[]
   }
@@ -6173,7 +6173,7 @@ export namespace Prisma {
     oauthRefreshtoken?: NullableStringFieldUpdateOperationsInput | string | null
     oauthId?: NullableStringFieldUpdateOperationsInput | string | null
     oauthProvider?: NullableEnumoauthProviderFieldUpdateOperationsInput | $Enums.oauthProvider | null
-    refreshtokens?: UsersUpdaterefreshtokensInput | string[]
+    refreshtokens?: UsersinsertRefreshTokensInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6190,7 +6190,7 @@ export namespace Prisma {
     oauthRefreshtoken?: NullableStringFieldUpdateOperationsInput | string | null
     oauthId?: NullableStringFieldUpdateOperationsInput | string | null
     oauthProvider?: NullableEnumoauthProviderFieldUpdateOperationsInput | $Enums.oauthProvider | null
-    refreshtokens?: UsersUpdaterefreshtokensInput | string[]
+    refreshtokens?: UsersinsertRefreshTokensInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

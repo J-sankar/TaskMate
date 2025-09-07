@@ -109,7 +109,9 @@ const SignUp = () => {
             }
             
         } catch (error) {
-            console.log(error.message)
+            const err = error.response?.data
+            setErrors({Error:err.error})
+            
             
         }
     }
@@ -137,7 +139,7 @@ const SignUp = () => {
                         <input type="email" placeholder="" name="email" id="email" value={formData.email} onChange={handleChange} />
                         <label htmlFor="email">Email</label>
                         <div>
-                        {errors.email && <p style={{ color: "red" }}>{errors.email}</p>}
+                        {errors.email && <p className={styles.p}>{errors.email}</p>}
                         </div>
                             
                     
@@ -160,6 +162,9 @@ const SignUp = () => {
 
                 <div className={`field flex justify-center ${styles.field}`}>
                     <button type="submit" className='border-2 hover:bg-violet-900 hover:scale-104 transition-all ease-in duration-100 bg-violet-600 text-white rounded-2xl p w-[90%] h-[50%] text-[20px]'>Sign Up</button>
+                </div>
+                <div className="errors">
+                     {errors.Error && <p style={{ color: "red" }}>{errors.Error}</p>}
                 </div>
             </form>
        

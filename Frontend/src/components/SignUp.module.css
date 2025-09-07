@@ -52,8 +52,9 @@ input:hover {
   color: black;
  }
 
-
-
+p {
+    color: red;
+}
  
 
  

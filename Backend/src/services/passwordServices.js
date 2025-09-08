@@ -13,7 +13,7 @@ export const hashPassword = async (password)=>{
     }    
 }
 
-export const verifyPassword = async (hashedPassword,password)=>{
+export const verifyPassword = async (password,hashedPassword)=>{
     try {
         
         const isMatch = await bcrypt.compare(password,hashedPassword)

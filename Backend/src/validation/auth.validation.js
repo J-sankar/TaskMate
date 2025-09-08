@@ -13,7 +13,8 @@ export const signupSchema = Joi.object({
     firstname: Joi.string().pattern(/^[A-Za-z\s]+$/).required(),
     lastname: Joi.string().pattern(/^[A-Za-z\s]+$/).optional().allow(''),
     phoneno: Joi.string().pattern(/^\+?[0-9]{10,15}$/).optional(),
-    password: Joi.string().pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/).required()
+    password: Joi.string().pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/).required(),
+    deviceId:Joi.string().required()
 
 })
 

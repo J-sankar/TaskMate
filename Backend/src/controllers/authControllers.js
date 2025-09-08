@@ -7,6 +7,7 @@ import { createAccessToken, createRefreshToken } from "../utils/createTokens.js"
 import {setAccessTokenInCookie, setRefreshTokenInCookie} from "../utils/cookie.js"
 import { verifyPassword } from "../services/passwordServices.js"
 import { verifyRefreshToken } from "../utils/verifiyTokens.js"
+import redis from "../config/redisClient.js"
 
 
 
@@ -69,11 +70,13 @@ export const googleCallBack = async (req, res, next) => {
         const accessToken = createAccessToken(insertedUser)
         const {refreshToken,tokenCreatedAt} = createRefreshToken(insertedUser, deviceId)
         await insertRefreshToken(refreshToken,insertedUser.userId,deviceId,tokenCreatedAt)
+        await redis.set(`refreshtoken:${insertedUser.userId}:${deviceId}`,refreshToken,'EX',7 * 24 * 60 * 60)
         setRefreshTokenInCookie(res, refreshToken)
         setAccessTokenInCookie(res, accessToken)
 
-        res.redirect(`http://localhost:5173/dashboard`)
-
+        console.log(accessToken,refreshToken,deviceId)
+        res.redirect('http://localhost:5173/dashboard')
+        
 
     } catch (err) {
         next(err)
@@ -81,18 +84,33 @@ export const googleCallBack = async (req, res, next) => {
 }
 
 export const signup = async (req, res, next) => {
+    const data = req.body
+    const user = await findUserbyEmail(data.email)
+    if (user) {
+        return res.status(409).json({message:'Email already exists'})
+    }
     try{
+        const deviceId = data.deviceId
+        const newUser = await createUser(data)
 
-        const newUser = await createUser(req.body)
-        return res.status(201).json({ success:true ,message: 'New user Signed Up',email:newUser.email })
+        const accessToken = createAccessToken(newUser)
+       
+        const {refreshToken,tokenCreatedAt} = createRefreshToken(newUser, deviceId)
+        await insertRefreshToken(refreshToken,newUser.userId,deviceId,tokenCreatedAt)
+        await redis.set(`refreshtoken:${newUser.userId}:${deviceId}`,refreshToken,'EX',7 * 24 * 60 * 60)
+        setRefreshTokenInCookie(res, refreshToken)
+        setAccessTokenInCookie(res,accessToken)
+        
+        console.log(`Sign up Successfull\n accesstoken: ${accessToken}\nRefreshtoken:${refreshToken}\ndeviceId:${deviceId}`)
+        console.log({refreshToken,accessToken,deviceId})
+        
+        return res.status(201).json({ success:true, message: 'New user Logged in',data:{email:newUser.email} })
     }catch(error){
         next(error)
     }
-
 } 
 
 export const login = async(req,res,next)=>{
-    res.clearCookie('refreshToken')
     const {email, password,deviceId} = req.body 
     try {
         
@@ -102,23 +120,24 @@ export const login = async(req,res,next)=>{
             err.status = 404
             return next(err)
         }
-        const isMatch = await verifyPassword(user.password,password)
+        const isMatch = await verifyPassword(password,user.password)
         if (!isMatch) {
             const err = new Error ("Incorrect password")
             err.status = 401
             return next(err)
         }
-        // const deviceId = getDeviceId()
+      
         const accessToken = createAccessToken(user)
        
-         const {refreshToken,tokenCreatedAt} = createRefreshToken(user, deviceId)
+        const {refreshToken,tokenCreatedAt} = createRefreshToken(user, deviceId)
         await insertRefreshToken(refreshToken,user.userId,deviceId,tokenCreatedAt)
+         await redis.set(`refreshtoken:${user.userId}:${deviceId}`,refreshToken,'EX',7 * 24 * 60 * 60)
         setRefreshTokenInCookie(res, refreshToken)
         setAccessTokenInCookie(res,accessToken)
         
         console.log(`Login Successfull\n accesstoken: ${accessToken}\nRefreshtoken:${refreshToken}\ndeviceId:${deviceId}`)
         
-        return res.status(200).json({success:true,message:'Login Successfull', accessToken})
+        return res.status(200).json({success:true,message:'Login Successfull', data:{email:user.email}})
     } catch (error) {
         next(error)
     }

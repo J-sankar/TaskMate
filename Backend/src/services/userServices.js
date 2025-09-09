@@ -134,7 +134,7 @@ export const findUserbyEmail = async (email) =>{
     }
 }
 
-export const findUserbyId  = async (userId) =>{
+export const findUserById  = async (userId) =>{
     try {
         const user = await prisma.users.findUnique({
             where:{

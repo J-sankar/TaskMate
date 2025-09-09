@@ -2,7 +2,7 @@ import { env } from "../config/env.js"
 import axios from 'axios'
 import { verify_IdToken } from "../utils/verifiyTokens.js"
 import { oauthSchema } from "../validation/auth.validation.js"
-import { createOauthUser, createUser, insertRefreshToken, findUserbyEmail, findUserbyId} from "../services/userServices.js"
+import { createOauthUser, createUser, insertRefreshToken, findUserbyEmail, findUserById} from "../services/userServices.js"
 import { createAccessToken, createRefreshToken } from "../utils/createTokens.js"
 import {setAccessTokenInCookie, setRefreshTokenInCookie} from "../utils/cookie.js"
 import { verifyPassword } from "../services/passwordServices.js"
@@ -155,7 +155,7 @@ export const refresh = async (req,res,next)=>{
             err.status = 401
             return next(err)
         }
-        const user = await findUserbyId(payload.id)
+        const user = await findUserById(payload.id)
         if (!user) {
            const err = new Error("User not found")
             err.status = 404

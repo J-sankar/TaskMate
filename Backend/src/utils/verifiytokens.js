@@ -29,3 +29,12 @@ export const verifyRefreshToken = (refreshToken)=>{
         return null 
     }
 }
+
+export const verifyAccessToken = (accessToken)=>{
+    try {
+        const payload = jwt.verify(accessToken, env.ACCESS_SECRET)
+        return payload
+    } catch (error) {
+        return null
+    }
+}

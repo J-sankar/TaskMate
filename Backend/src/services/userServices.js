@@ -146,4 +146,15 @@ export const findUserById  = async (userId) =>{
         throw error
     }
 }
-
+export const removeRefreshToken = async (payload)=>{
+    try {
+        await prisma.refreshTokens.deleteMany({
+            where:{
+                ownerId:payload.id,
+                deviceId: payload.deviceId
+            }
+        })
+    } catch (error) {
+        throw error
+    }
+}

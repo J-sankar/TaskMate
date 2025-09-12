@@ -1,13 +1,26 @@
 import React from 'react'
 import Logo from '../Logo'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import styles from  './Sidebar.module.css'
 import {GridViewOutlined,AssignmentOutlined, GroupsOutlined,CalendarMonthOutlined,AnalyticsOutlined,SettingsOutlined,SupportOutlined,LogoutOutlined} from '@mui/icons-material'
-
+import axios from 'axios'
 
 
 
 const Sidebar = () => {
+  const navigate = useNavigate()
+  const handleClick = async ()=>{
+    try {
+      
+      const response = await axios.post('http://localhost:3000/auth/logout',{},{
+        withCredentials:true
+      })
+      console.log(response.data)
+
+    } catch (error) {
+       console.log(error.message)
+    }
+  }
   return (
     <div className='shadow-violet-700 flex flex-col items-baseline px-4 py-9 justify-baseline gap-7 h-screen w-[20vw] rounded-2xl  bg-gray-100 '>
       <Logo classname='flex justify-center  align-baseline items-center gap-5 mr-10 ' size='text-xl'/>
@@ -74,13 +87,13 @@ const Sidebar = () => {
   <span className='group-hover:font-semibold group-hover:text-black'>Help</span>
 </Link>
 
-<Link 
+<button onClick={handleClick}
   className='group hover:scale-110 transition-transform duration-300 ease-in-out flex items-center gap-2 text-gray-500' 
   to='/logout'
 >
   <LogoutOutlined fontSize='small' className='group-hover:text-violet-900 group-hover:font-semibold' />  
   <span className='group-hover:font-semibold group-hover:text-black'>Logout</span>
-</Link>
+</button>
 
 
       </div>

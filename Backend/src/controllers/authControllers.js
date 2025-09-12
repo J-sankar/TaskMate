@@ -2,7 +2,7 @@ import { env } from "../config/env.js"
 import axios from 'axios'
 import { verify_IdToken } from "../utils/verifiyTokens.js"
 import { oauthSchema } from "../validation/auth.validation.js"
-import { createOauthUser, createUser, insertRefreshToken, findUserbyEmail, findUserById} from "../services/userServices.js"
+import { createOauthUser, createUser, insertRefreshToken, findUserbyEmail, findUserById, removeRefreshToken} from "../services/userServices.js"
 import { createAccessToken, createRefreshToken } from "../utils/createTokens.js"
 import {setAccessTokenInCookie, setRefreshTokenInCookie} from "../utils/cookie.js"
 import { verifyPassword } from "../services/passwordServices.js"
@@ -146,15 +146,24 @@ export const login = async(req,res,next)=>{
 
 export const refresh = async (req,res,next)=>{
     const refreshToken = req.cookies.refreshToken 
-    if (!refreshToken) return next({ message: "Refresh token not found", status: 400 });
+    if (!refreshToken) return next({ message: "Refresh token not found", status: 401 });
     try {
         const payload = verifyRefreshToken(refreshToken)
         if (!payload){
             
             const err = new Error("Invalid or expired refresh token")
-            err.status = 401
+            err.status = 403
             return next(err)
         }
+       const redisKey = `refreshtoken:${payload.id}:${payload.deviceId}`;
+        let storedToken = await redis.get(redisKey);
+        if (storedToken !== refreshToken){
+             const err = new Error("Invalid or expired refresh token")
+            err.status = 403
+            return next(err)
+        }
+       
+
         const user = await findUserById(payload.id)
         if (!user) {
            const err = new Error("User not found")
@@ -162,7 +171,18 @@ export const refresh = async (req,res,next)=>{
             return next(err)
         }
         const newAccessToken = createAccessToken(user)
-        return res.status(200).json({accessToken:newAccessToken})
+        const {refreshToken:newRefreshToken} = createRefreshToken(user,payload.deviceId)
+        await redis
+      .multi()
+      .del(redisKey) 
+      .set(redisKey, newRefreshToken, "EX", 7 * 24 * 60 * 60) 
+      .exec();
+
+        res.clearCookie("accessToken")
+        res.clearCookie("refreshToken")
+
+        setAccessTokenInCookie(res,newAccessToken)
+        setRefreshTokenInCookie(res,newRefreshToken)
     } catch (error) {
         next(error)
     }
@@ -176,14 +196,26 @@ export const logout = async (req,res,next)=>{
         err.status = 401
         return next(err)
     }
-    const payload = verifyRefreshToken(refreshToken)
-    if (!payload){
-            
-            const err = new Error("Invalid or expired refresh token")
-            err.status = 401
-            return next(err)
-        }
-    const deviceId =  getDeviceId()
-    res.clearCookie(refreshToken)
+    try {
+        
+        const payload = verifyRefreshToken(refreshToken)
+        if (!payload){
+                
+                const err = new Error("Invalid or expired refresh token")
+                err.status = 401
+                return next(err)
+            }
+        const redisKey = `refreshtoken:${payload.id}:${payload.deviceId}`;
+        
+        await redis.del(redisKey);
+        await removeRefreshToken(payload)
+
+        
+        res.clearCookie("refreshToken")
+        res.clearCookie("accessToken")
+        return res.status(200).json({ message: "Logged out successfully" });
+    } catch (error) {
+        return next(error)
+    }
 
 }

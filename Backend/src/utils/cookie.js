@@ -6,6 +6,7 @@ export const setRefreshTokenInCookie = (res, refreshToken) => {
             httpOnly: true,
             secure: env.NODE_ENV === 'production',
             sameSite: 'strict',
+            path:'/',
             maxAge: 7 * 24 * 60 * 60 * 1000
         }
     )
@@ -16,6 +17,7 @@ export const setAccessTokenInCookie = (res,accessToken)=>{
             httpOnly:true,
             secure:env.NODE_ENV === 'production',
             sameSite: 'strict',
+            path:'/',
              maxAge:  15 * 60 * 1000
         }
     )

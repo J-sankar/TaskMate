@@ -16,6 +16,10 @@ const Sidebar = () => {
         withCredentials:true
       })
       console.log(response.data)
+      if(response.status == 200){
+        navigate('/')
+      }
+
 
     } catch (error) {
        console.log(error.message)

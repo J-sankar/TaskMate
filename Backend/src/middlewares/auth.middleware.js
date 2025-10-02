@@ -3,6 +3,8 @@ import { verifyAccessToken } from "../utils/verifiyTokens.js"
 
 const authMiddleware = async (req, res, next)=>{
     const accessToken = req.cookies.accessToken
+   
+    
     if (!accessToken){
         const err = new Error("Unauthorized")
         err.status = 401

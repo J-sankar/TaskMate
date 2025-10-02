@@ -183,6 +183,7 @@ export const refresh = async (req,res,next)=>{
 
         setAccessTokenInCookie(res,newAccessToken)
         setRefreshTokenInCookie(res,newRefreshToken)
+        return res.status(200).json({message:'refreshed',data:{at:newAccessToken,rt:newRefreshToken}})
     } catch (error) {
         next(error)
     }
@@ -211,8 +212,8 @@ export const logout = async (req,res,next)=>{
         await removeRefreshToken(payload)
 
         
-        res.clearCookie("refreshToken")
-        res.clearCookie("accessToken")
+       res.clearCookie("refreshToken", { httpOnly: true, sameSite: "strict", path: "/" });
+        res.clearCookie("accessToken", { httpOnly: true, sameSite: "strict", path: "/" });
         return res.status(200).json({ message: "Logged out successfully" });
     } catch (error) {
         return next(error)
